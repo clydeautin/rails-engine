@@ -19,4 +19,8 @@ class ItemSerializer
       end
     }
   end
+
+  def self.format_item(item)
+    
+  end
 end
