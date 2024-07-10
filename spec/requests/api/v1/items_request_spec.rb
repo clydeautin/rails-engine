@@ -38,7 +38,7 @@ describe "Items API" do
     get "/api/v1/items/#{item1.id}"
 
     item = JSON.parse(response.body, symbolize_names: true)[:data]
-    # require 'pry'; binding.pry
+
     expect(response).to be_successful
 
     expect(item).to have_key(:id)
@@ -60,5 +60,33 @@ describe "Items API" do
 
     expect(item[:attributes][:merchant_id]).to be_an(Integer)
     expect(item[:attributes][:merchant_id]).to eq(item1.merchant_id)
+  end
+
+  it "Can create one item" do
+    merchant = FactoryBot.create(:merchant)
+
+    item_params = ({
+                    name: "White Board",
+                    description: "4 by 2 great quality",
+                    unit_price: 17.99,
+                    merchant_id: merchant.id
+    })
+
+    headers = {"CONTENT_TYPE" => "application/json"}
+
+    post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+    created_item = JSON.parse(response.body)
+    expect(response).to be_successful
+    expect(response.status).to eq(200)
+  
+    json_response = JSON.parse(response.body, symbolize_names: true)
+    
+    expect(json_response[:data][:type]).to eq('item')
+    expect(json_response[:data][:attributes][:name]).to eq(item_params[:name])
+    expect(json_response[:data][:attributes][:description]).to eq(item_params[:description])
+    expect(json_response[:data][:attributes][:unit_price]).to eq(item_params[:unit_price])
+    expect(json_response[:data][:attributes][:merchant_id]).to eq(item_params[:merchant_id])
+    
+    expect(Item.count).to eq(1)
   end
 end

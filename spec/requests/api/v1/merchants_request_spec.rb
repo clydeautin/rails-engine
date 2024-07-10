@@ -47,7 +47,7 @@ describe "Merchants API" do
     item3 = FactoryBot.create(:item, merchant: merchant)
 
     get "/api/v1/merchants/#{merchant.id}/items"
-
+    
     expect(response).to be_successful
 
     merchant_items = JSON.parse(response.body, symbolize_names: true)[:data]
