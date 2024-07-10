@@ -125,4 +125,43 @@ describe "Items API" do
     expect(item_deleted[:attributes][:merchant_id]).to be_an(Integer)
     expect(item_deleted[:attributes][:merchant_id]).to eq(item1.merchant_id)
   end
+
+  it "can update one item" do
+    merchant = FactoryBot.create(:merchant)
+    item = FactoryBot.create(:item, merchant: merchant)
+
+    item_params = {
+      name: "White Board",
+      description: "4 by 2 great quality",
+      unit_price: 17.99,
+      merchant_id: merchant.id
+    }
+
+    headers = { "CONTENT_TYPE" => "application/json" }
+    patch "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate(item: item_params)
+
+    item_updated = JSON.parse(response.body, symbolize_names: true)[:data]
+    
+    expect(response).to be_successful
+
+    expect(item_updated).to have_key(:id)
+    expect(item_updated[:id]).to eq(item.id.to_s)
+  
+    expect(item_updated).to have_key(:type)
+    expect(item_updated[:type]).to be_a(String) 
+
+    expect(item_updated).to have_key(:attributes)
+
+    expect(item_updated[:attributes][:name]).to be_a(String) 
+    expect(item_updated[:attributes][:name]).to eq("White Board") 
+
+    expect(item_updated[:attributes][:description]).to be_a(String) 
+    expect(item_updated[:attributes][:description]).to eq("4 by 2 great quality")
+
+    expect(item_updated[:attributes][:unit_price]).to be_a(Float) 
+    expect(item_updated[:attributes][:unit_price]).to eq(17.99) 
+
+    expect(item_updated[:attributes][:merchant_id]).to be_an(Integer)
+    expect(item_updated[:attributes][:merchant_id]).to eq(item.merchant_id)
+  end
 end

@@ -31,6 +31,16 @@ class Api::V1::ItemsController < ApplicationController
     end
   end
 
+  def update
+    item = Item.find(params[:id])
+    #  NEED TO UPDATE FOR ERROR HANDLING, FAILING POSTMAN SAD PATH FOR MERCHANT NOT FOUND
+    if item.update(item_params)
+      render json: ItemSerializer.new(item)
+    else
+      render json: { error: item.errors.full_messages.to_sentence }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def item_params
