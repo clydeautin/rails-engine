@@ -193,7 +193,7 @@ describe "Items API" do
     get "/api/v1/items/find_all?name=aleNd"
 
     item_found = JSON.parse(response.body, symbolize_names: true)[:data]
-# require 'pry'; binding.pry
+
     expect(response).to be_successful
     
     expect(item_found.first).to have_key(:id)
@@ -215,6 +215,20 @@ describe "Items API" do
 
     expect(item_found.first[:attributes][:merchant_id]).to be_an(Integer)
     expect(item_found.first[:attributes][:merchant_id]).to eq(item1.merchant_id)
+  end
+
+  it 'will not return anything if no items are found in a search' do
+    merchant = FactoryBot.create(:merchant)
+    item1 = FactoryBot.create(:item, name: "Calendar", merchant: merchant)
+    item2 = FactoryBot.create(:item, merchant: merchant)
+
+    get "/api/v1/items/find_all?name=WORLD"
+
+    item_found = JSON.parse(response.body, symbolize_names: true)[:data]
+    
+    expect(response).to_not be_successful
+    
+    expect(response.status).to eq(404)
   end
 
   it 'Can find all items by min price' do

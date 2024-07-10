@@ -2,7 +2,9 @@ class Item < ApplicationRecord
   belongs_to :merchant
 
   def self.find_by_name(name)
-    self.where("name ILIKE ?", "%#{name}%")
+    items = self.where("name ILIKE ?", "%#{name}%")
+    raise ActiveRecord::RecordNotFound if items.empty?
+    items
   end
 
   def self.find_by_min_price(min_price)

@@ -44,20 +44,16 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find_all
+    # check here if min/max price and name were sent together and raise error before hitting model
     if params[:name] && !params[:min_price] && !params[:max_price]
       items = Item.find_by_name(params[:name])
-      if items
         render json: ItemSerializer.format_items(items), status: :ok
-      else
-        # passing, should probably refactor after wednesday error handling class
-        render json: { data: {errors: 'No items found'} }, status: :not_found
-      end
     elsif params[:min_price] && !params[:name] && !params[:max_price]
       items = Item.find_by_min_price(params[:min_price])
       if items && params[:min_price].to_i >= 0
         render json: ItemSerializer.format_items(items), status: :ok
       else
-        # passing, should probably refactor after wednesday error handling class // bad_request = 400 error, not_found = 404
+        # bad_request = 400 error, not_found = 404
       render json: {errors: 'Price cannot be negative'}, status: :bad_request
       end
     elsif params[:max_price] && !params[:name] && !params[:min_price]
@@ -77,4 +73,8 @@ class Api::V1::ItemsController < ApplicationController
   def item_params
     params.require(:item).permit(:name, :description, :unit_price, :merchant_id)
   end
+
+  # def filtering_params
+  #   params.permit(:name, :min_price, :max_price)
+  # end
 end
