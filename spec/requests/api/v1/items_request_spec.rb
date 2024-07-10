@@ -216,4 +216,26 @@ describe "Items API" do
     expect(item_found.first[:attributes][:merchant_id]).to be_an(Integer)
     expect(item_found.first[:attributes][:merchant_id]).to eq(item1.merchant_id)
   end
+
+  it 'Can find all items by price' do
+    merchant = FactoryBot.create(:merchant)
+    item1 = FactoryBot.create(:item, merchant: merchant, unit_price: 1599)
+    item2 = FactoryBot.create(:item, merchant: merchant, unit_price: 999)
+    item3 = FactoryBot.create(:item, merchant: merchant, unit_price: 499)
+
+    min_price = 999
+    get "/api/v1/items/find_all?min_price=#{min_price}"
+
+    items_found = JSON.parse(response.body, symbolize_names: true)[:data]
+
+    expect(response).to be_successful
+
+    expect(items_found.first[:attributes][:unit_price]).to eq (1599) 
+    expect(items_found.first[:attributes][:unit_price]).to be >= min_price 
+    
+    expect(items_found[1][:attributes][:unit_price]).to eq (999) 
+    expect(items_found[1][:attributes][:unit_price]).to be >= min_price
+
+    expect(item_found.count).to eq(2)
+  end
 end
