@@ -77,7 +77,8 @@ describe "Items API" do
     post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
     created_item = JSON.parse(response.body)
     expect(response).to be_successful
-    expect(response.status).to eq(200)
+    # require 'pry'; binding.pry
+    expect(response.status).to eq(201)
   
     json_response = JSON.parse(response.body, symbolize_names: true)
     

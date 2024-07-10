@@ -16,14 +16,15 @@ class Api::V1::ItemsController < ApplicationController
   def create
     item = Item.new(item_params)
     if item.save
-      render json: ItemSerializer.new(item)
+      render json: ItemSerializer.new(item), status: :created
     else
       render json: { error: item.errors.full_messages.to_sentence }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    render json: Book.delete(params[:id])
+    item = Item.find(params[:id])
+    item.destroy
   end
 
   private
