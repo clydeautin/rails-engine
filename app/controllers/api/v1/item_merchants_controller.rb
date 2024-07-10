@@ -7,4 +7,5 @@ class Api::V1::ItemMerchantsController < ApplicationController
       render json: "Item not found", status: :not_found
     end
   end
+
 end
