@@ -184,4 +184,58 @@ describe "Items API" do
     expect(merchant_found).to have_key(:type)
     expect(merchant_found[:type]).to be_a(String)
   end
+
+  it 'can get items by searching keywords' do
+    merchant = FactoryBot.create(:merchant)
+    item1 = FactoryBot.create(:item, name: "Calendar", merchant: merchant)
+    item2 = FactoryBot.create(:item, merchant: merchant)
+
+    get "/api/v1/items/find_all?name=aleNd"
+
+    item_found = JSON.parse(response.body, symbolize_names: true)[:data]
+# require 'pry'; binding.pry
+    expect(response).to be_successful
+    
+    expect(item_found.first).to have_key(:id)
+    expect(item_found.first[:id]).to eq(item1.id.to_s)
+  
+    expect(item_found.first).to have_key(:type)
+    expect(item_found.first[:type]).to be_a(String) 
+
+    expect(item_found.first).to have_key(:attributes)
+
+    expect(item_found.first[:attributes][:name]).to be_a(String) 
+    expect(item_found.first[:attributes][:name]).to eq(item1.name) 
+
+    expect(item_found.first[:attributes][:description]).to be_a(String) 
+    expect(item_found.first[:attributes][:description]).to eq(item1.description)
+
+    expect(item_found.first[:attributes][:unit_price]).to be_a(Float) 
+    expect(item_found.first[:attributes][:unit_price]).to eq(item1.unit_price) 
+
+    expect(item_found.first[:attributes][:merchant_id]).to be_an(Integer)
+    expect(item_found.first[:attributes][:merchant_id]).to eq(item1.merchant_id)
+  end
+
+  it 'Can find all items by price' do
+    merchant = FactoryBot.create(:merchant)
+    item1 = FactoryBot.create(:item, merchant: merchant, unit_price: 1599)
+    item2 = FactoryBot.create(:item, merchant: merchant, unit_price: 999)
+    item3 = FactoryBot.create(:item, merchant: merchant, unit_price: 499)
+
+    min_price = 999
+    get "/api/v1/items/find_all?min_price=#{min_price}"
+
+    items_found = JSON.parse(response.body, symbolize_names: true)[:data]
+
+    expect(response).to be_successful
+
+    expect(items_found.first[:attributes][:unit_price]).to eq (1599) 
+    expect(items_found.first[:attributes][:unit_price]).to be >= min_price 
+    
+    expect(items_found[1][:attributes][:unit_price]).to eq (999) 
+    expect(items_found[1][:attributes][:unit_price]).to be >= min_price
+
+    expect(item_found.count).to eq(2)
+  end
 end

@@ -43,6 +43,17 @@ class Api::V1::ItemsController < ApplicationController
     end
   end
 
+  def find_all
+    # require 'pry'; binding.pry
+    item = Item.find_by_name(params[:name])
+    if item
+      render json: ItemSerializer.format_items(item), status: :ok
+    else
+        # passing, should probably refactor after wednesday error handling class
+      render json: { data: {error: 'Item not found'} }, status: :not_found
+    end
+  end
+
   private
 
   def item_params

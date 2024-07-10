@@ -75,7 +75,7 @@ describe "Merchants API" do
     merchant1 = create(:merchant, name: "Target")
     merchant2 = create(:merchant)
     
-    get "/api/v1/merchants/find?name=Target"
+    get "/api/v1/merchants/find?name=Rget"
 
     merchant_found = JSON.parse(response.body, symbolize_names: true)[:data]
   
