@@ -236,6 +236,6 @@ describe "Items API" do
     expect(items_found[1][:attributes][:unit_price]).to eq (999) 
     expect(items_found[1][:attributes][:unit_price]).to be >= min_price
 
-    expect(item_found.count).to eq(2)
+    expect(items_found.count).to eq(2)
   end
 end

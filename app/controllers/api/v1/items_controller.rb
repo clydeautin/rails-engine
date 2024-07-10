@@ -44,13 +44,23 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find_all
-    # require 'pry'; binding.pry
-    item = Item.find_by_name(params[:name])
-    if item
-      render json: ItemSerializer.format_items(item), status: :ok
-    else
+    if params[:name]
+      items = Item.find_by_name(params[:name])
+      if items
+        render json: ItemSerializer.format_items(items), status: :ok
+      else
         # passing, should probably refactor after wednesday error handling class
-      render json: { data: {error: 'Item not found'} }, status: :not_found
+        render json: { data: {error: 'No items found'} }, status: :not_found
+      end
+    elsif params[:min_price]
+      # require 'pry'; binding.pry
+      items = Item.find_by_min_price(params[:min_price])
+      if items
+        render json: ItemSerializer.format_items(items), status: :ok
+      else
+        # passing, should probably refactor after wednesday error handling class
+      render json: { data: {error: 'No items found'} }, status: :not_found
+      end
     end
   end
 
