@@ -238,4 +238,15 @@ describe "Items API" do
 
     expect(items_found.count).to eq(2)
   end
+
+  it 'Can reject price searches less than 0' do
+    min_price = -100
+    get "/api/v1/items/find_all?min_price=#{min_price}"
+
+    items_found = JSON.parse(response.body, symbolize_names: true)
+    require 'pry'; binding.pry
+    expect(response).to_not be_successful
+    expect(response.status).to eq(400)
+
+  end
 end

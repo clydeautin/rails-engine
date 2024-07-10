@@ -50,16 +50,16 @@ class Api::V1::ItemsController < ApplicationController
         render json: ItemSerializer.format_items(items), status: :ok
       else
         # passing, should probably refactor after wednesday error handling class
-        render json: { data: {error: 'No items found'} }, status: :not_found
+        render json: { data: {errors: 'No items found'} }, status: :not_found
       end
     elsif params[:min_price]
       # require 'pry'; binding.pry
       items = Item.find_by_min_price(params[:min_price])
-      if items
+      if items && params[:min_price].to_i >= 0
         render json: ItemSerializer.format_items(items), status: :ok
       else
-        # passing, should probably refactor after wednesday error handling class
-      render json: { data: {error: 'No items found'} }, status: :not_found
+        # passing, should probably refactor after wednesday error handling class // bad_request = 400 error, not_found = 404
+      render json: {errors: 'Price cannot be negative'}, status: :bad_request
       end
     end
   end
