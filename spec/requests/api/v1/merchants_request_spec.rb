@@ -25,7 +25,6 @@ describe "Merchants API" do
     id = create(:merchant).id
   
     get "/api/v1/merchants/#{id}"
-  
     merchant = JSON.parse(response.body, symbolize_names: true)[:data]
   
     expect(response).to be_successful
@@ -70,5 +69,25 @@ describe "Merchants API" do
       expect(merchant_items[:attributes]).to have_key(:merchant_id)
       expect(merchant_items[:attributes][:merchant_id]).to be_a(Integer)
     end
+  end
+
+  it "can get one merchant by its name" do
+    merchant1 = create(:merchant, name: "Target")
+    merchant2 = create(:merchant)
+    
+    get "/api/v1/merchants/find?name=Target"
+
+    merchant_found = JSON.parse(response.body, symbolize_names: true)[:data]
+  
+    expect(response).to be_successful
+
+    expect(merchant_found).to have_key(:id)
+    expect(merchant_found[:id]).to eq(merchant1.id.to_s)
+  
+    expect(merchant_found).to have_key(:attributes)
+    expect(merchant_found[:attributes][:name]).to eq(merchant1.name)
+
+    expect(merchant_found).to have_key(:type)
+    expect(merchant_found[:type]).to be_a(String)
   end
 end

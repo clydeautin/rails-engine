@@ -164,4 +164,24 @@ describe "Items API" do
     expect(item_updated[:attributes][:merchant_id]).to be_an(Integer)
     expect(item_updated[:attributes][:merchant_id]).to eq(item.merchant_id)
   end
+
+  it "can get item's merchant" do
+    merchant = FactoryBot.create(:merchant)
+    item = FactoryBot.create(:item, merchant: merchant)
+    
+    get "/api/v1/items/#{item.id}/merchant"
+
+    merchant_found = JSON.parse(response.body, symbolize_names: true)[:data]
+  
+    expect(response).to be_successful
+
+    expect(merchant_found).to have_key(:id)
+    expect(merchant_found[:id]).to eq(merchant.id.to_s)
+  
+    expect(merchant_found).to have_key(:attributes)
+    expect(merchant_found[:attributes][:name]).to eq(merchant.name)
+
+    expect(merchant_found).to have_key(:type)
+    expect(merchant_found[:type]).to be_a(String)
+  end
 end
