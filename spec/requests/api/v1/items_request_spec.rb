@@ -217,7 +217,7 @@ describe "Items API" do
     expect(item_found.first[:attributes][:merchant_id]).to eq(item1.merchant_id)
   end
 
-  it 'Can find all items by price' do
+  it 'Can find all items by min price' do
     merchant = FactoryBot.create(:merchant)
     item1 = FactoryBot.create(:item, merchant: merchant, unit_price: 1599)
     item2 = FactoryBot.create(:item, merchant: merchant, unit_price: 999)
@@ -239,14 +239,57 @@ describe "Items API" do
     expect(items_found.count).to eq(2)
   end
 
+  it 'Can find all items by max price' do
+    merchant = FactoryBot.create(:merchant)
+    item1 = FactoryBot.create(:item, merchant: merchant, unit_price: 1599)
+    item2 = FactoryBot.create(:item, merchant: merchant, unit_price: 999)
+    item3 = FactoryBot.create(:item, merchant: merchant, unit_price: 499)
+
+    max_price = 999
+    get "/api/v1/items/find_all?max_price=#{max_price}"
+
+    items_found = JSON.parse(response.body, symbolize_names: true)[:data]
+
+    expect(response).to be_successful
+
+    expect(items_found.first[:attributes][:unit_price]).to eq (999) 
+    expect(items_found.first[:attributes][:unit_price]).to be <= max_price 
+    
+    expect(items_found[1][:attributes][:unit_price]).to eq (499) 
+    expect(items_found[1][:attributes][:unit_price]).to be <= max_price
+
+    expect(items_found.count).to eq(2)
+  end
+
   it 'Can reject price searches less than 0' do
     min_price = -100
     get "/api/v1/items/find_all?min_price=#{min_price}"
 
     items_found = JSON.parse(response.body, symbolize_names: true)
-    require 'pry'; binding.pry
+
     expect(response).to_not be_successful
     expect(response.status).to eq(400)
+  end
 
+  it "Won't accept name and min price in the same search" do
+    merchant = FactoryBot.create(:merchant)
+    item1 = FactoryBot.create(:item, name: "Calendar", merchant: merchant)
+    min_price = 100
+
+    get "/api/v1/items/find_all?name=aleNd&min_price=#{min_price}"
+    # require 'pry'; binding.pry
+    expect(response).to_not be_successful
+    expect(response.status).to eq(400)
+  end
+
+  it "Won't accept name and max price in the same search" do
+    merchant = FactoryBot.create(:merchant)
+    item1 = FactoryBot.create(:item, name: "Calendar", merchant: merchant)
+    max_price = 100
+
+    get "/api/v1/items/find_all?name=aleNd&max_price=#{max_price}"
+    # require 'pry'; binding.pry
+    expect(response).to_not be_successful
+    expect(response.status).to eq(400)
   end
 end
