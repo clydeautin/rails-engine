@@ -49,9 +49,11 @@ describe "Merchants API" do
     get "/api/v1/merchants/#{merchant.id}/items"
     
     expect(response).to be_successful
-
+    
     merchant_items = JSON.parse(response.body, symbolize_names: true)[:data]
-    # require 'pry'; binding.pry
+
+    expect(merchant_items.count).to eq(3)
+
     merchant_items.each do |merchant_items|
       expect(merchant_items).to have_key(:id)
       expect(merchant_items[:id]).to be_a(String)

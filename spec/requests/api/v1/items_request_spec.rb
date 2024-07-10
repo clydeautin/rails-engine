@@ -90,4 +90,39 @@ describe "Items API" do
     
     expect(Item.count).to eq(1)
   end
+
+  it "can delete one item" do
+    merchant = FactoryBot.create(:merchant)
+    item1 = FactoryBot.create(:item, merchant: merchant)
+    item2 = FactoryBot.create(:item, merchant: merchant)
+    item3 = FactoryBot.create(:item, merchant: merchant)
+
+    delete "/api/v1/items/#{item1.id}"
+
+    item_deleted = JSON.parse(response.body, symbolize_names: true)[:data]
+
+    expect(response).to be_successful
+    
+    expect(Item.all).to eq([item2, item3])
+
+    expect(item_deleted).to have_key(:id)
+    expect(item_deleted[:id]).to eq(item1.id.to_s)
+  
+    expect(item_deleted).to have_key(:type)
+    expect(item_deleted[:type]).to be_a(String) 
+
+    expect(item_deleted).to have_key(:attributes)
+
+    expect(item_deleted[:attributes][:name]).to be_a(String) 
+    expect(item_deleted[:attributes][:name]).to eq(item1.name) 
+
+    expect(item_deleted[:attributes][:description]).to be_a(String) 
+    expect(item_deleted[:attributes][:description]).to eq(item1.description)
+
+    expect(item_deleted[:attributes][:unit_price]).to be_a(Float) 
+    expect(item_deleted[:attributes][:unit_price]).to eq(item1.unit_price) 
+
+    expect(item_deleted[:attributes][:merchant_id]).to be_an(Integer)
+    expect(item_deleted[:attributes][:merchant_id]).to eq(item1.merchant_id)
+  end
 end
