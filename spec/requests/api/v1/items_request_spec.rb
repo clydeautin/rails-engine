@@ -10,6 +10,7 @@ describe "Items API" do
     get '/api/v1/items'
 
     expect(response).to be_successful
+    expect(response.status).to eq (200)
 
     items = JSON.parse(response.body, symbolize_names: true)[:data]
 
@@ -29,6 +30,7 @@ describe "Items API" do
       expect(item[:attributes][:unit_price]).to be_a(Float)
     end
   end
+
   it "can return one item" do
     merchant = FactoryBot.create(:merchant)
     item1 = FactoryBot.create(:item, merchant: merchant)
@@ -36,10 +38,11 @@ describe "Items API" do
     item3 = FactoryBot.create(:item, merchant: merchant)
 
     get "/api/v1/items/#{item1.id}"
-
+    
     item = JSON.parse(response.body, symbolize_names: true)[:data]
-
+    
     expect(response).to be_successful
+    expect(response.status).to eq (200)
 
     expect(item).to have_key(:id)
     expect(item[:id]).to eq(item1.id.to_s)
@@ -62,6 +65,19 @@ describe "Items API" do
     expect(item[:attributes][:merchant_id]).to eq(item1.merchant_id)
   end
 
+  it "will gracefully handle if a Item id doesn't exist" do
+    get "/api/v1/items/123456789"
+
+    expect(response).to_not be_successful
+    expect(response.status).to eq(404)
+
+    data = JSON.parse(response.body, symbolize_names: true)
+    
+    expect(data[:errors]).to be_a(Array)
+    expect(data[:errors].first[:status]).to eq("404")
+    expect(data[:errors].first[:title]).to eq("Couldn't find Item with 'id'=123456789")
+  end
+
   it "Can create one item" do
     merchant = FactoryBot.create(:merchant)
 
@@ -75,9 +91,10 @@ describe "Items API" do
     headers = {"CONTENT_TYPE" => "application/json"}
 
     post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+
     created_item = JSON.parse(response.body)
+    
     expect(response).to be_successful
-    # require 'pry'; binding.pry
     expect(response.status).to eq(201)
   
     json_response = JSON.parse(response.body, symbolize_names: true)
@@ -102,6 +119,7 @@ describe "Items API" do
     item_deleted = JSON.parse(response.body, symbolize_names: true)[:data]
 
     expect(response).to be_successful
+    expect(response.status).to eq (200)
     
     expect(Item.all).to eq([item2, item3])
 
@@ -143,6 +161,7 @@ describe "Items API" do
     item_updated = JSON.parse(response.body, symbolize_names: true)[:data]
     
     expect(response).to be_successful
+    expect(response.status).to eq (200)
 
     expect(item_updated).to have_key(:id)
     expect(item_updated[:id]).to eq(item.id.to_s)
@@ -174,6 +193,7 @@ describe "Items API" do
     merchant_found = JSON.parse(response.body, symbolize_names: true)[:data]
   
     expect(response).to be_successful
+    expect(response.status).to eq (200)
 
     expect(merchant_found).to have_key(:id)
     expect(merchant_found[:id]).to eq(merchant.id.to_s)
@@ -195,6 +215,7 @@ describe "Items API" do
     item_found = JSON.parse(response.body, symbolize_names: true)[:data]
 
     expect(response).to be_successful
+    expect(response.status).to eq (200)
     
     expect(item_found.first).to have_key(:id)
     expect(item_found.first[:id]).to eq(item1.id.to_s)
@@ -243,6 +264,7 @@ describe "Items API" do
     items_found = JSON.parse(response.body, symbolize_names: true)[:data]
 
     expect(response).to be_successful
+    expect(response.status).to eq (200)
 
     expect(items_found.first[:attributes][:unit_price]).to eq (1599) 
     expect(items_found.first[:attributes][:unit_price]).to be >= min_price 
@@ -265,6 +287,7 @@ describe "Items API" do
     items_found = JSON.parse(response.body, symbolize_names: true)[:data]
 
     expect(response).to be_successful
+    expect(response.status).to eq (200)
 
     expect(items_found.first[:attributes][:unit_price]).to eq (999) 
     expect(items_found.first[:attributes][:unit_price]).to be <= max_price 
