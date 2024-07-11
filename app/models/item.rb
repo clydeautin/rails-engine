@@ -7,11 +7,8 @@ class Item < ApplicationRecord
   belongs_to :merchant
 
   def self.search(params)
-    # binding.pry
     if params[:name] && (params[:min_price] || params[:max_price])
-      # render json: {errors: 'Can not send price and keyword search in one query'}, status: :bad_request
       return {errors: 'Can not send price and keyword search in one query'}
-      # raise ArgumentError::P
     elsif params[:min_price] || params[:max_price]
       self.search_by_price(params[:min_price], params[:max_price])
     elsif params[:name]
@@ -28,7 +25,6 @@ class Item < ApplicationRecord
   end
 
   def self.search_by_price(min_price = 0, max_price = nil)
-    # binding.pry
     error = validate_prices(min_price, max_price)
     return error if error
     if max_price.nil?
@@ -36,7 +32,6 @@ class Item < ApplicationRecord
     elsif min_price.nil?
       self.where("unit_price <= ?", max_price)
     else
-      # binding.pry
       items = self.where("unit_price >= ? AND unit_price <= ?", min_price, max_price)
     end
   end
@@ -52,8 +47,4 @@ class Item < ApplicationRecord
   def self.find_by_max_price(min_price)
     self.where("unit_price <= #{min_price}")
   end
-
-  # def self.mixed_params
-  #   if statement
-  # end
 end
