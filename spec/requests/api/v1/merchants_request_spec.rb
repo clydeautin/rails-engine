@@ -87,6 +87,19 @@ describe "Merchants API" do
     end
   end
 
+  it "will gracefully handle if a Merchant id doesn't exist when searching for merchant items" do
+    get "/api/v1/merchants/123456789/items"
+
+    expect(response).to_not be_successful
+    expect(response.status).to eq(404)
+
+    data = JSON.parse(response.body, symbolize_names: true)
+    
+    expect(data[:errors]).to be_a(Array)
+    expect(data[:errors].first[:status]).to eq("404")
+    expect(data[:errors].first[:title]).to eq("Couldn't find Merchant with 'id'=123456789")
+  end
+
   it "can get one merchant by its name" do
     merchant1 = create(:merchant, name: "Target")
     merchant2 = create(:merchant)
@@ -121,5 +134,35 @@ describe "Merchants API" do
     expect(data[:errors]).to be_a(Array)
     expect(data[:errors].first[:status]).to eq("404")
     expect(data[:errors].first[:title]).to eq("Couldn't find Merchant with 'name'=Walmart")
+  end
+
+  it "will gracefully handle if no parameters passed" do
+    merchant1 = create(:merchant, name: "Target")
+
+    get "/api/v1/merchants/find"
+
+    expect(response).to_not be_successful
+    expect(response.status).to eq(400)
+
+    data = JSON.parse(response.body, symbolize_names: true)
+    
+    expect(data[:errors]).to be_a(Array)
+    expect(data[:errors].first[:status]).to eq("400")
+    expect(data[:errors].first[:title]).to eq("Bad Request, No name parameter")
+  end
+
+  it "will gracefully handle if name parameter is empty" do
+    merchant1 = create(:merchant, name: "Target")
+
+    get "/api/v1/merchants/find?name="
+
+    expect(response).to_not be_successful
+    expect(response.status).to eq(400)
+
+    data = JSON.parse(response.body, symbolize_names: true)
+    
+    expect(data[:errors]).to be_a(Array)
+    expect(data[:errors].first[:status]).to eq("400")
+    expect(data[:errors].first[:title]).to eq("Bad Request, No name parameter")
   end
 end

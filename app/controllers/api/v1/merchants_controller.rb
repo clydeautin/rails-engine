@@ -9,13 +9,15 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def find
-    merchant = Merchant.find_by_name(params[:name])
-    if merchant
-      render json: MerchantSerializer.format_merchant(merchant), status: :ok
+    if params[:name].nil? || params[:name] == ""
+      render json: { data: {}, errors: [{title: "Bad Request, No name parameter", status: "400"}] }, status: :bad_request
     else
-        # passing, should probably refactor after wednesday error handling class
-      # render json: { data: {error: 'Merchant not found'} }, status: :not_found
-      render json: { data: {}, errors: [{title: "Couldn't find Merchant with 'name'=#{params[:name]}", status: "404"}] }, status: :not_found
+      merchant = Merchant.find_by_name(params[:name])
+      if merchant
+        render json: MerchantSerializer.format_merchant(merchant), status: :ok
+      else
+        render json: { data: {}, errors: [{title: "Couldn't find Merchant with 'name'=#{params[:name]}", status: "404"}] }, status: :not_found
+      end
     end
   end
 end

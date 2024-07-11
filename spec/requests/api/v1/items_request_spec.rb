@@ -93,7 +93,7 @@ describe "Items API" do
     post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
 
     created_item = JSON.parse(response.body)
-    
+
     expect(response).to be_successful
     expect(response.status).to eq(201)
   
@@ -116,32 +116,11 @@ describe "Items API" do
 
     delete "/api/v1/items/#{item1.id}"
 
-    item_deleted = JSON.parse(response.body, symbolize_names: true)[:data]
-
     expect(response).to be_successful
-    expect(response.status).to eq (200)
+    expect(response.status).to eq (204)
+    expect(response.body).to be_empty
     
     expect(Item.all).to eq([item2, item3])
-
-    expect(item_deleted).to have_key(:id)
-    expect(item_deleted[:id]).to eq(item1.id.to_s)
-  
-    expect(item_deleted).to have_key(:type)
-    expect(item_deleted[:type]).to be_a(String) 
-
-    expect(item_deleted).to have_key(:attributes)
-
-    expect(item_deleted[:attributes][:name]).to be_a(String) 
-    expect(item_deleted[:attributes][:name]).to eq(item1.name) 
-
-    expect(item_deleted[:attributes][:description]).to be_a(String) 
-    expect(item_deleted[:attributes][:description]).to eq(item1.description)
-
-    expect(item_deleted[:attributes][:unit_price]).to be_a(Float) 
-    expect(item_deleted[:attributes][:unit_price]).to eq(item1.unit_price) 
-
-    expect(item_deleted[:attributes][:merchant_id]).to be_an(Integer)
-    expect(item_deleted[:attributes][:merchant_id]).to eq(item1.merchant_id)
   end
 
   it "can update one item" do
@@ -303,7 +282,7 @@ describe "Items API" do
     get "/api/v1/items/find_all?min_price=#{min_price}"
 
     items_found = JSON.parse(response.body, symbolize_names: true)
-
+    # binding.pry
     expect(response).to_not be_successful
     expect(response.status).to eq(400)
   end
