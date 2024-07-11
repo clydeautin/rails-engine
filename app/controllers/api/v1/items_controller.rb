@@ -38,28 +38,35 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find_all
-    # check here if min/max price and name were sent together and raise error before hitting model
-    if params[:name] && !params[:min_price] && !params[:max_price]
-      items = Item.find_by_name(params[:name])
-        render json: ItemSerializer.format_items(items), status: :ok
-    elsif params[:min_price] && !params[:name] && !params[:max_price]
-      items = Item.find_by_min_price(params[:min_price])
-      if items && params[:min_price].to_i >= 0
-        render json: ItemSerializer.format_items(items), status: :ok
-      else
-        # bad_request = 400 error, not_found = 404
-      render json: {errors: 'Price cannot be negative'}, status: :bad_request
-      end
-    elsif params[:max_price] && !params[:name] && !params[:min_price]
-      items = Item.find_by_max_price(params[:max_price])
-      if items && params[:max_price].to_i >= 0
-        render json: ItemSerializer.format_items(items), status: :ok
-      else
-      render json: {errors: 'Price cannot be negative'}, status: :bad_request
-      end
+    items = Item.search(params)
+    if items.is_a?(ActiveRecord::Relation)
+      render json: ItemSerializer.format_items(items), status: :ok
     else
-      render json: {errors: 'Can not send price and keyword search in one query'}, status: :bad_request
+      # binding.pry
+      render json: { errors: items[:errors] }, status: :bad_request
     end
+    # check here if min/max price and name were sent together and raise error before hitting model
+    # if params[:name] && !params[:min_price] && !params[:max_price]
+    #   items = Item.find_by_name(params[:name])
+    #     render json: ItemSerializer.format_items(items), status: :ok
+    # elsif params[:min_price] && !params[:name] && !params[:max_price]
+    #   items = Item.find_by_min_price(params[:min_price])
+    #   if items && params[:min_price].to_i >= 0
+    #     render json: ItemSerializer.format_items(items), status: :ok
+    #   else
+    #     # bad_request = 400 error, not_found = 404
+    #   render json: {errors: 'Price cannot be negative'}, status: :bad_request
+    #   end
+    # elsif params[:max_price] && !params[:name] && !params[:min_price]
+    #   items = Item.find_by_max_price(params[:max_price])
+    #   if items && params[:max_price].to_i >= 0
+    #     render json: ItemSerializer.format_items(items), status: :ok
+    #   else
+    #   render json: {errors: 'Price cannot be negative'}, status: :bad_request
+    #   end
+    # else
+    #   render json: {errors: 'Can not send price and keyword search in one query'}, status: :bad_request
+    # end
   end
 
   private
