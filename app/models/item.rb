@@ -39,12 +39,4 @@ class Item < ApplicationRecord
   def self.validate_prices(min_price = 0, max_price = 0)
     return {errors:'Price cannot be negative'} if min_price.to_i < 0 || max_price.to_i < 0
   end
-
-  def self.find_by_min_price(min_price)
-    self.where("unit_price >= #{min_price}")
-  end
-
-  def self.find_by_max_price(min_price)
-    self.where("unit_price <= #{min_price}")
-  end
 end
