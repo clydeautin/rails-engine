@@ -282,7 +282,7 @@ describe "Items API" do
     get "/api/v1/items/find_all?min_price=#{min_price}"
 
     items_found = JSON.parse(response.body, symbolize_names: true)
-    # binding.pry
+
     expect(response).to_not be_successful
     expect(response.status).to eq(400)
   end
@@ -293,7 +293,7 @@ describe "Items API" do
     min_price = 100
 
     get "/api/v1/items/find_all?name=aleNd&min_price=#{min_price}"
-    # require 'pry'; binding.pry
+
     expect(response).to_not be_successful
     expect(response.status).to eq(400)
   end
@@ -304,7 +304,7 @@ describe "Items API" do
     max_price = 100
 
     get "/api/v1/items/find_all?name=aleNd&max_price=#{max_price}"
-    # require 'pry'; binding.pry
+
     expect(response).to_not be_successful
     expect(response.status).to eq(400)
   end
