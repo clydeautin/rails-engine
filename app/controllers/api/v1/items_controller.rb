@@ -24,22 +24,16 @@ class Api::V1::ItemsController < ApplicationController
 
   def destroy
     item = Item.find(params[:id])
-    if item.destroy
-      render json: ItemSerializer.new(item)
-    else
-      render json: { error: item.errors.full_messages.to_sentence }, status: :unprocessable_entity
-    end
+    item.destroy
   end
 
   def update
     item = Item.find(params[:id])
-    if params[:merchant_id] && Merchant.find(params[:merchant_id]).nil?
-      render json: { error: "Merchant not found" }, status: :not_found
-    elsif item.update(item_params)
-        render json: ItemSerializer.new(item)
+    Merchant.find(params[:merchant_id]) if params[:merchant_id] 
+    if item.update(item_params)
+      render json: ItemSerializer.new(item)
     else
-      # should probably refactor after wed class
-      render json: { error: item.errors.full_messages.to_sentence }, status: :unprocessable_entity
+      render json: ErrorSerializer.new(ErrorMessage.new(error.message, 404)).serialize_json, status: 404
     end
   end
 
