@@ -14,7 +14,8 @@ class Api::V1::MerchantsController < ApplicationController
       render json: MerchantSerializer.format_merchant(merchant), status: :ok
     else
         # passing, should probably refactor after wednesday error handling class
-      render json: { data: {error: 'Merchant not found'} }, status: :not_found
+      # render json: { data: {error: 'Merchant not found'} }, status: :not_found
+      render json: { data: {}, errors: [{title: "Couldn't find Merchant with 'name'=#{params[:name]}", status: "404"}] }, status: :not_found
     end
   end
 end
