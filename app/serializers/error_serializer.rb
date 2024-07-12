@@ -5,7 +5,6 @@ class ErrorSerializer
 
   def serialize_json
     {
-      data:[],
       errors: [
         {
           status: @error_object.status_code.to_s,

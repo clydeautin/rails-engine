@@ -20,8 +20,8 @@ class Item < ApplicationRecord
 
   def self.find_by_name(name)
     items = self.where("name ILIKE ?", "%#{name}%")
-    raise ActiveRecord::RecordNotFound if items.empty?
-    items
+    # raise ActiveRecord::RecordNotFound if items.empty?
+    # items
   end
 
   def self.search_by_price(min_price = 0, max_price = nil)
